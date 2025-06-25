@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../contexts/Web3Context';
-import { useMarketplace } from '../hooks/useMarketplace';
-import { useGameAssetNFT } from '../hooks/useGameAssetNFT';
+import { useEnhancedMarketplace } from '../hooks/useEnhancedMarketplace';
+import { useEnhancedGameAssetNFT } from '../hooks/useEnhancedGameAssetNFT';
 import { MarketplaceListing, GameAsset, AssetCategory, AssetRarity } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -9,6 +9,8 @@ import { LoadingSpinner } from './ui/LoadingSpinner';
 import { Modal } from './ui/Modal';
 import { Badge } from './ui/Badge';
 import MintShop from './MintShop';
+import DemoModeToggle from './DemoModeToggle';
+import EnhancedGameFeatures from './EnhancedGameFeatures';
 import '../styles/NFTMarketplace.css';
 
 interface NFTMarketplaceProps {
@@ -28,8 +30,12 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
     listNFTForTrade,
     cancelListing,
     placeBid,
-    getActiveListings
-  } = useMarketplace(account);
+    getActiveListings,
+    demoMode: marketplaceDemoMode,
+    setDemoMode: setMarketplaceDemoMode,
+    playerDemoAssets,
+    refreshDemoData
+  } = useEnhancedMarketplace(account);
   
   const {
     playerAssets,
@@ -37,8 +43,11 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
     error: assetsError,
     mintAsset,
     getAssetDetails,
-    getPlayerAssets
-  } = useGameAssetNFT(account);
+    getPlayerAssets,
+    demoMode: assetsDemoMode,
+    setDemoMode: setAssetsDemoMode,
+    refreshDemoAssets
+  } = useEnhancedGameAssetNFT(account);
 
   const [activeTab, setActiveTab] = useState<'marketplace' | 'inventory' | 'mint'>('marketplace');
   const [selectedListing, setSelectedListing] = useState<MarketplaceListing | null>(null);
@@ -46,12 +55,25 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
   const [showListModal, setShowListModal] = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showMintModal, setShowMintModal] = useState(false);
+  const [showFeaturesModal, setShowFeaturesModal] = useState(false);
   const [listingType, setListingType] = useState<'sale' | 'auction' | 'trade'>('sale');
   const [listingPrice, setListingPrice] = useState('');
   const [auctionDuration, setAuctionDuration] = useState('24');
   const [bidAmount, setBidAmount] = useState('');
   const [filterCategory, setFilterCategory] = useState<AssetCategory | 'all'>('all');
   const [filterRarity, setFilterRarity] = useState<AssetRarity | 'all'>('all');
+  const [demoMode, setDemoMode] = useState(false);
+
+  // Sync demo mode across both hooks
+  const handleDemoModeToggle = (enabled: boolean) => {
+    setDemoMode(enabled);
+    setMarketplaceDemoMode(enabled);
+    setAssetsDemoMode(enabled);
+    if (enabled) {
+      refreshDemoData();
+      refreshDemoAssets();
+    }
+  };
 
   useEffect(() => {
     if (isConnected && account) {
@@ -130,7 +152,10 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
     return true;
   });
 
-  const filteredAssets = playerAssets.filter(asset => {
+  // Use appropriate assets based on demo mode
+  const currentPlayerAssets = demoMode ? playerDemoAssets : playerAssets;
+  
+  const filteredAssets = currentPlayerAssets.filter(asset => {
     if (filterCategory !== 'all' && asset.category !== filterCategory) return false;
     if (filterRarity !== 'all' && asset.rarity !== filterRarity) return false;
     return true;
@@ -194,9 +219,20 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
 
   return (
     <div className={`nft-marketplace ${className}`}>
+      {/* Demo Mode Toggle */}
+      <DemoModeToggle 
+        onToggle={handleDemoModeToggle}
+        isEnabled={demoMode}
+      />
+      
       <div className="marketplace-header">
         <h1>NFT Marketplace</h1>
         <p>Buy, sell, and trade in-game assets as NFTs</p>
+        {demoMode && (
+          <div className="demo-banner">
+            🎮 <strong>Hackathon Demo Mode Active</strong> - All features available with sample data!
+          </div>
+        )}
       </div>
 
       {/* Tab Navigation */}
@@ -218,6 +254,12 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
           onClick={() => setActiveTab('mint')}
         >
           ⚒️ Mint Assets
+        </button>
+        <button 
+          className="tab features-tab"
+          onClick={() => setShowFeaturesModal(true)}
+        >
+          🎮 Game Features
         </button>
       </div>
 
@@ -470,6 +512,13 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
       <MintShop 
         isOpen={showMintModal} 
         onClose={() => setShowMintModal(false)} 
+      />
+
+      {/* Enhanced Game Features Modal */}
+      <EnhancedGameFeatures
+        isVisible={showFeaturesModal}
+        onClose={() => setShowFeaturesModal(false)}
+        demoMode={demoMode}
       />
     </div>
   );

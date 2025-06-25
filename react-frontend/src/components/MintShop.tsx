@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useGameAssetNFT, ASSET_TYPES } from '../hooks/useGameAssetNFT';
+import { useEnhancedGameAssetNFT } from '../hooks/useEnhancedGameAssetNFT';
+import { ASSET_TYPES } from '../hooks/useGameAssetNFT';
 import { useWeb3 } from '../contexts/Web3Context';
 import { AssetDefinition, AssetCategory, AssetRarity } from '../types';
 import { Button } from './ui/Button';
@@ -21,8 +22,9 @@ export const MintShop: React.FC<MintShopProps> = ({ isOpen, onClose }) => {
     error, 
     mintAsset, 
     getAssetDefinition, 
-    getAssetMintCount 
-  } = useGameAssetNFT(account);
+    getAssetMintCount,
+    demoMode
+  } = useEnhancedGameAssetNFT(account);
 
   const [assetDefinitions, setAssetDefinitions] = useState<Record<string, AssetDefinition & { mintCount: number }>>({});
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);

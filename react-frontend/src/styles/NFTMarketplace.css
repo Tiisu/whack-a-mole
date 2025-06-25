@@ -48,6 +48,25 @@
   margin: 0 auto;
 }
 
+.demo-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+  to { box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5); }
+}
+
 /* Tab Navigation */
 .marketplace-tabs {
   display: flex;
@@ -83,6 +102,17 @@
   background: #667eea;
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.features-tab {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+  color: white !important;
+  animation: pulse 2s infinite;
+}
+
+.features-tab:hover {
+  background: linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%) !important;
+  transform: translateY(-2px) scale(1.05);
 }
 
 /* Filters */
