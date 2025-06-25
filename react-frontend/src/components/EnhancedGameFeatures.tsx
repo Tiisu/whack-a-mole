@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
@@ -17,10 +17,42 @@ export const EnhancedGameFeatures: React.FC<EnhancedGameFeaturesProps> = ({
   demoMode 
 }) => {
   const [activeFeature, setActiveFeature] = useState<'achievements' | 'powerups' | 'events' | 'leaderboard'>('achievements');
-  const [gameFeatures] = useState(getEnhancedGameFeatures());
-  const [leaderboard] = useState(generateDummyLeaderboard());
+  const [gameFeatures] = useState(() => getEnhancedGameFeatures());
+  const [leaderboard] = useState(() => generateDummyLeaderboard());
 
+  // Keyboard support
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      onClose();
+    }
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isVisible) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isVisible, handleKeyDown]);
+
+  // Don't render if not visible
   if (!isVisible) return null;
+
+  // Error handling for data
+  if (!gameFeatures || !leaderboard) {
+    return (
+      <div className="enhanced-game-features-overlay">
+        <div className="enhanced-game-features">
+          <div className="features-header">
+            <h2>🎮 Enhanced Game Features</h2>
+            <Button onClick={onClose} className="close-btn">✕</Button>
+          </div>
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <p>Loading game features...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -34,7 +66,10 @@ export const EnhancedGameFeatures: React.FC<EnhancedGameFeaturesProps> = ({
   };
 
   return (
-    <div className="enhanced-game-features-overlay">
+    <div 
+      className="enhanced-game-features-overlay"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="enhanced-game-features">
         <div className="features-header">
           <h2>🎮 Enhanced Game Features</h2>
@@ -117,7 +152,16 @@ export const EnhancedGameFeatures: React.FC<EnhancedGameFeaturesProps> = ({
                         <span className="duration">
                           Duration: {powerup.duration / 1000}s
                         </span>
-                        <Button className="buy-powerup-btn">
+                        <Button 
+                          className="buy-powerup-btn"
+                          onClick={() => {
+                            if (demoMode) {
+                              alert(`🎮 Demo Mode: Purchased ${powerup.name} for ${powerup.cost} coins!`);
+                            } else {
+                              alert('Power-up system coming soon!');
+                            }
+                          }}
+                        >
                           Buy for {powerup.cost} coins
                         </Button>
                       </div>
