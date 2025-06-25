@@ -6,6 +6,7 @@ import { AppProvider, useAppContext } from './contexts/AppContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import LandingPage from './components/LandingPage';
 import GameContainer from './components/GameContainer';
+import NFTMarketplace from './components/NFTMarketplace';
 import AccessControl from './components/AccessControl';
 import TrialGameOverlay from './components/TrialGameOverlay';
 import './App.css';
@@ -16,7 +17,8 @@ const AppRouter: React.FC = () => {
     currentView,
     startTrialGame,
     hasUsedTrial,
-    navigateToGame
+    navigateToGame,
+    navigateToMarketplace
   } = useAppContext();
 
   const { connect } = useWeb3();
@@ -44,6 +46,7 @@ const AppRouter: React.FC = () => {
         onStartTrial={handleStartTrial}
         onConnectWallet={handleConnectWallet}
         onNavigateToGame={navigateToGame}
+        onNavigateToMarketplace={navigateToMarketplace}
         trialUsed={hasUsedTrial}
       />
     );
@@ -54,6 +57,14 @@ const AppRouter: React.FC = () => {
       <AccessControl>
         <GameContainer />
         <TrialGameOverlay />
+      </AccessControl>
+    );
+  }
+
+  if (currentView === 'marketplace') {
+    return (
+      <AccessControl>
+        <NFTMarketplace />
       </AccessControl>
     );
   }

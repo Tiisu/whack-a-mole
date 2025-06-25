@@ -25,6 +25,8 @@ function updateFrontendConfig(network = 'testnet') {
     console.log(`📋 Updating frontend config for ${network}...`);
     console.log(`Game Contract: ${contracts.WhacAMoleGame}`);
     console.log(`NFT Contract: ${contracts.WhacAMoleNFT}`);
+    if (contracts.NFTMarketplace) console.log(`Marketplace Contract: ${contracts.NFTMarketplace}`);
+    if (contracts.GameAssetNFT) console.log(`Game Asset NFT Contract: ${contracts.GameAssetNFT}`);
     
     // Read current web3Config.ts
     const configFile = path.join(__dirname, 'react-frontend', 'src', 'config', 'web3Config.ts');
@@ -35,22 +37,62 @@ function updateFrontendConfig(network = 'testnet') {
     
     if (network === 'testnet') {
       // Update TESTNET addresses
-      const gameAddressPattern = /TESTNET:\s*{\s*GAME_CONTRACT:\s*['"]([^'"]*)['"]/;
-      const nftAddressPattern = /TESTNET:\s*{[^}]*NFT_CONTRACT:\s*['"]([^'"]*)['"]/;
+      if (contracts.WhacAMoleGame) {
+        configContent = configContent.replace(
+          /TESTNET:\s*{\s*GAME_CONTRACT:\s*['"][^'"]*['"]/,
+          `TESTNET: {\n    GAME_CONTRACT: '${contracts.WhacAMoleGame}'`
+        );
+      }
       
-      configContent = configContent.replace(gameAddressPattern, `TESTNET: {\n    GAME_CONTRACT: '${contracts.WhacAMoleGame}'`);
-      configContent = configContent.replace(nftAddressPattern, (match) => {
-        return match.replace(/NFT_CONTRACT:\s*['"][^'"]*['"]/, `NFT_CONTRACT: '${contracts.WhacAMoleNFT}'`);
-      });
+      if (contracts.WhacAMoleNFT) {
+        configContent = configContent.replace(
+          /NFT_CONTRACT:\s*['"][^'"]*['"](?=,?\s*MARKETPLACE_CONTRACT)/,
+          `NFT_CONTRACT: '${contracts.WhacAMoleNFT}'`
+        );
+      }
+      
+      if (contracts.NFTMarketplace) {
+        configContent = configContent.replace(
+          /MARKETPLACE_CONTRACT:\s*['"][^'"]*['"](?=,?\s*GAME_ASSET_NFT_CONTRACT)/,
+          `MARKETPLACE_CONTRACT: '${contracts.NFTMarketplace}'`
+        );
+      }
+      
+      if (contracts.GameAssetNFT) {
+        configContent = configContent.replace(
+          /GAME_ASSET_NFT_CONTRACT:\s*['"][^'"]*['"](?=\s*})/,
+          `GAME_ASSET_NFT_CONTRACT: '${contracts.GameAssetNFT}'`
+        );
+      }
     } else {
       // Update MAINNET addresses
-      const gameAddressPattern = /MAINNET:\s*{\s*GAME_CONTRACT:\s*['"]([^'"]*)['"]/;
-      const nftAddressPattern = /MAINNET:\s*{[^}]*NFT_CONTRACT:\s*['"]([^'"]*)['"]/;
+      if (contracts.WhacAMoleGame) {
+        configContent = configContent.replace(
+          /MAINNET:\s*{\s*GAME_CONTRACT:\s*['"][^'"]*['"]/,
+          `MAINNET: {\n    GAME_CONTRACT: '${contracts.WhacAMoleGame}'`
+        );
+      }
       
-      configContent = configContent.replace(gameAddressPattern, `MAINNET: {\n    GAME_CONTRACT: '${contracts.WhacAMoleGame}'`);
-      configContent = configContent.replace(nftAddressPattern, (match) => {
-        return match.replace(/NFT_CONTRACT:\s*['"][^'"]*['"]/, `NFT_CONTRACT: '${contracts.WhacAMoleNFT}'`);
-      });
+      if (contracts.WhacAMoleNFT) {
+        configContent = configContent.replace(
+          /MAINNET:\s*{[^}]*NFT_CONTRACT:\s*['"][^'"]*['"]/,
+          (match) => match.replace(/NFT_CONTRACT:\s*['"][^'"]*['"]/, `NFT_CONTRACT: '${contracts.WhacAMoleNFT}'`)
+        );
+      }
+      
+      if (contracts.NFTMarketplace) {
+        configContent = configContent.replace(
+          /MAINNET:[^}]*MARKETPLACE_CONTRACT:\s*['"][^'"]*['"]/,
+          (match) => match.replace(/MARKETPLACE_CONTRACT:\s*['"][^'"]*['"]/, `MARKETPLACE_CONTRACT: '${contracts.NFTMarketplace}'`)
+        );
+      }
+      
+      if (contracts.GameAssetNFT) {
+        configContent = configContent.replace(
+          /MAINNET:[^}]*GAME_ASSET_NFT_CONTRACT:\s*['"][^'"]*['"]/,
+          (match) => match.replace(/GAME_ASSET_NFT_CONTRACT:\s*['"][^'"]*['"]/, `GAME_ASSET_NFT_CONTRACT: '${contracts.GameAssetNFT}'`)
+        );
+      }
     }
     
     // Write updated config

@@ -12,6 +12,7 @@ interface LandingPageProps {
   onStartTrial: () => void;
   onConnectWallet: () => void;
   onNavigateToGame: () => void;
+  onNavigateToMarketplace: () => void;
   trialUsed: boolean;
 }
 
@@ -19,6 +20,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
   onStartTrial,
   onConnectWallet,
   onNavigateToGame,
+  onNavigateToMarketplace,
   trialUsed
 }) => {
   const { web3State, isLoading } = useWeb3();
@@ -66,6 +68,7 @@ const LandingPage: React.FC<LandingPageProps> = ({
           <div className="nav-links">
             <a href="#features" className="nav-link">Features</a>
             <a href="#nfts" className="nav-link">NFTs</a>
+            <button onClick={onNavigateToMarketplace} className="nav-link">Marketplace</button>
             <a href="#roadmap" className="nav-link">Roadmap</a>
 
             <Button

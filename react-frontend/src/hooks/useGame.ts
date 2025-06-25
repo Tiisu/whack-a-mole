@@ -6,18 +6,24 @@ import { GAME_CONFIG, DEFAULT_GAME_SETTINGS, STORAGE_KEYS } from '../config/web3
 
 export const useGame = () => {
   // Game state
-  const [gameState, setGameState] = useState<GameState>({
-    score: 0,
-    timeLeft: GAME_CONFIG.DURATION,
-    currentLevel: 1,
-    pointsToNextLevel: GAME_CONFIG.LEVEL_CONFIG[0].pointsRequired,
-    gameOver: true,
-    isPaused: false,
-    molesHit: 0,
-    plantsHit: 0,
-    isPlaying: false,
-    currentStreak: 0,
-    bestStreak: 0
+  const [gameState, setGameState] = useState<GameState>(() => {
+    const savedStats = localStorage.getItem(STORAGE_KEYS.GAME_STATS);
+    const highScore = savedStats ? JSON.parse(savedStats).totalScore || 0 : 0;
+    
+    return {
+      score: 0,
+      timeLeft: GAME_CONFIG.DURATION,
+      currentLevel: 1,
+      pointsToNextLevel: GAME_CONFIG.LEVEL_CONFIG[0].pointsRequired,
+      gameOver: true,
+      isPaused: false,
+      molesHit: 0,
+      plantsHit: 0,
+      isPlaying: false,
+      currentStreak: 0,
+      bestStreak: 0,
+      highScore: highScore
+    };
   });
 
   // Game statistics
@@ -264,7 +270,7 @@ export const useGame = () => {
 
   // Start game
   const startGame = useCallback(async () => {
-    setGameState({
+    setGameState(prev => ({
       score: 0,
       timeLeft: GAME_CONFIG.DURATION,
       currentLevel: 1,
@@ -275,8 +281,9 @@ export const useGame = () => {
       plantsHit: 0,
       isPlaying: true,
       currentStreak: 0,
-      bestStreak: 0
-    });
+      bestStreak: 0,
+      highScore: prev.highScore // Preserve high score
+    }));
 
     setMoles([]);
     
@@ -329,7 +336,12 @@ export const useGame = () => {
     setGameStats(newStats);
     localStorage.setItem(STORAGE_KEYS.GAME_STATS, JSON.stringify(newStats));
 
-    setGameState(prev => ({ ...prev, gameOver: true, isPlaying: false }));
+    setGameState(prev => ({ 
+      ...prev, 
+      gameOver: true, 
+      isPlaying: false,
+      highScore: Math.max(prev.highScore, prev.score) // Update high score if current score is higher
+    }));
     setMoles([]);
   }, [clearAllIntervals, pauseBackgroundMusic, gameState, gameStats]);
 
@@ -338,7 +350,7 @@ export const useGame = () => {
     clearAllIntervals();
     pauseBackgroundMusic();
 
-    setGameState({
+    setGameState(prev => ({
       score: 0,
       timeLeft: GAME_CONFIG.DURATION,
       currentLevel: 1,
@@ -349,8 +361,9 @@ export const useGame = () => {
       plantsHit: 0,
       isPlaying: false,
       currentStreak: 0,
-      bestStreak: 0
-    });
+      bestStreak: 0,
+      highScore: prev.highScore // Preserve high score
+    }));
     
     setMoles([]);
   }, [clearAllIntervals, pauseBackgroundMusic]);

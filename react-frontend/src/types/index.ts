@@ -48,6 +48,7 @@ export interface GameState {
   isPlaying: boolean;
   currentStreak: number;
   bestStreak: number;
+  highScore: number;
 }
 
 export interface GameStats {
@@ -83,6 +84,8 @@ export interface Web3State {
 export interface ContractAddresses {
   GAME_CONTRACT: string;
   NFT_CONTRACT: string;
+  MARKETPLACE_CONTRACT?: string;
+  GAME_ASSET_NFT_CONTRACT?: string;
 }
 
 export interface NetworkConfig {
@@ -307,4 +310,113 @@ export interface NotificationContextType {
   addNotification: (notification: Omit<NotificationData, 'id' | 'timestamp'>) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
+}
+
+// NFT Marketplace Types
+export enum AssetCategory {
+  WEAPON = 0,
+  SKIN = 1,
+  POWERUP = 2,
+  BACKGROUND = 3,
+  MOLE_SKIN = 4,
+  HAMMER = 5,
+  SPECIAL = 6
+}
+
+export enum AssetRarity {
+  COMMON = 0,
+  UNCOMMON = 1,
+  RARE = 2,
+  EPIC = 3,
+  LEGENDARY = 4,
+  MYTHIC = 5
+}
+
+export interface GameAsset {
+  tokenId: number;
+  name: string;
+  description: string;
+  category: AssetCategory;
+  rarity: AssetRarity;
+  power: number;
+  speed: number;
+  luck: number;
+  imageURI: string;
+  isActive: boolean;
+  createdAt: number;
+  creator: string;
+}
+
+export interface AssetDefinition {
+  name: string;
+  description: string;
+  category: AssetCategory;
+  rarity: AssetRarity;
+  power: number;
+  speed: number;
+  luck: number;
+  imageURI: string;
+  mintPrice: number;
+  maxSupply: number;
+  isActive: boolean;
+}
+
+export interface MarketplaceListing {
+  listingId: number;
+  seller: string;
+  nftContract: string;
+  tokenId: number;
+  listingType: 'FIXED_PRICE' | 'AUCTION' | 'TRADE_OFFER';
+  price: number;
+  startTime: number;
+  endTime: number;
+  status: 'ACTIVE' | 'SOLD' | 'CANCELLED' | 'EXPIRED';
+  isActive: boolean;
+  currentBid?: number;
+  currentBidder?: string | null;
+  asset?: GameAsset | null;
+}
+
+export interface TradeOffer {
+  tradeOfferId: number;
+  listingId: number;
+  wantedNftContracts: string[];
+  wantedTokenIds: number[];
+  offeredNftContracts: string[];
+  offeredTokenIds: number[];
+  offerer: string;
+  isAccepted: boolean;
+}
+
+// Hook return types for marketplace
+export interface UseMarketplaceReturn {
+  listings: MarketplaceListing[];
+  isLoading: boolean;
+  error: string | null;
+  marketplaceContract: any;
+  getActiveListings: (offset?: number, limit?: number) => Promise<void>;
+  listNFTForSale: (tokenId: number, price: number) => Promise<void>;
+  listNFTForAuction: (tokenId: number, startingBid: number, bidIncrement: number, duration: number) => Promise<void>;
+  listNFTForTrade: (tokenId: number, wantedNftContracts: string[], wantedTokenIds: number[]) => Promise<void>;
+  buyNFT: (listingId: number, price: number) => Promise<void>;
+  placeBid: (listingId: number, bidAmount: number) => Promise<void>;
+  cancelListing: (listingId: number) => Promise<void>;
+  createTradeOffer: (listingId: number, offeredNftContracts: string[], offeredTokenIds: number[]) => Promise<void>;
+  acceptTradeOffer: (tradeOfferId: number) => Promise<void>;
+}
+
+export interface UseGameAssetNFTReturn {
+  playerAssets: GameAsset[];
+  isLoading: boolean;
+  error: string | null;
+  gameAssetContract: any;
+  getPlayerAssets: (playerAddress: string) => Promise<void>;
+  getAssetDetails: (tokenId: number) => Promise<GameAsset | null>;
+  mintAsset: (assetType: string, recipient?: string) => Promise<number | null>;
+  getAssetDefinition: (assetType: string) => Promise<AssetDefinition | null>;
+  getAssetMintCount: (assetType: string) => Promise<number>;
+  approveMarketplace: (tokenId: number) => Promise<void>;
+  setApprovalForAll: (approved: boolean) => Promise<void>;
+  isMarketplaceApproved: (tokenId?: number) => Promise<boolean>;
+  getPlayerAssetsByCategory: (playerAddress: string, category: AssetCategory) => Promise<GameAsset[]>;
 }

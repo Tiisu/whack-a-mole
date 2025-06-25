@@ -53,6 +53,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     )
 
     if (animated) {
+      const { onDrag, onDragStart, onDragEnd, ...motionProps } = props;
       return (
         <motion.div
           ref={ref}
@@ -60,7 +61,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          {...props}
+          {...motionProps}
         >
           {content}
         </motion.div>

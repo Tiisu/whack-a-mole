@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { useTrialAccess } from '../hooks/useTrialAccess';
 import { useWeb3 } from './Web3Context';
 
-export type AppView = 'landing' | 'game';
+export type AppView = 'landing' | 'game' | 'marketplace';
 
 export type UserAccessLevel = 
   | 'trial_available'    // User hasn't used trial yet
@@ -19,6 +19,7 @@ interface AppContextType {
   canPlayGame: boolean;
   navigateToGame: () => void;
   navigateToLanding: () => void;
+  navigateToMarketplace: () => void;
   startTrialGame: () => void;
   endCurrentGame: () => Promise<void>;
   cleanupGameState: () => void;
@@ -112,6 +113,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setCurrentView('landing');
   }, []);
 
+  const navigateToMarketplace = useCallback(() => {
+    setCurrentView('marketplace');
+  }, []);
+
   // Start trial game
   const startTrialGame = useCallback(() => {
     if (userAccessLevel === 'trial_available' && canStartTrial) {
@@ -199,6 +204,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     canPlayGame,
     navigateToGame,
     navigateToLanding,
+    navigateToMarketplace,
     startTrialGame,
     endCurrentGame,
     cleanupGameState,

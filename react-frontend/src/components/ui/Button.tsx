@@ -69,6 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     )
 
     if (animated) {
+      const { onDrag, onDragStart, onDragEnd, ...motionProps } = props;
       return (
         <motion.button
           ref={ref}
@@ -77,7 +78,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          {...props}
+          {...motionProps}
         >
           {buttonContent}
           {variant === 'gaming' && (

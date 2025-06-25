@@ -47,6 +47,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     )
 
     if (animated) {
+      const { onDrag, onDragStart, onDragEnd, ...motionProps } = props;
       return (
         <motion.div
           ref={ref}
@@ -55,7 +56,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           whileHover={hover ? { y: -4, scale: 1.02 } : undefined}
-          {...props}
+          {...motionProps}
         >
           {children}
         </motion.div>
