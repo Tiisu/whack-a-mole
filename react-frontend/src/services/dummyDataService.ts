@@ -1,172 +1,15 @@
 // Dummy data service for hackathon demo
 import { GameAsset, MarketplaceListing, AssetCategory, AssetRarity } from '../types';
+import { nftAssetTemplates, getRandomNFTImage, getNFTImageByCategory } from '../data/nftAssets';
 
-// Generate dummy NFT assets
+// Generate dummy NFT assets using real images
 export const generateDummyAssets = (count: number = 20): GameAsset[] => {
   const assets: GameAsset[] = [];
   
+  // Use the real NFT asset templates
   const assetTemplates = [
-    // Legendary Hammers
-    {
-      name: "Thor's Mjolnir",
-      description: "The legendary hammer of the Norse god of thunder. Grants incredible power and lightning speed.",
-      category: AssetCategory.HAMMER,
-      rarity: AssetRarity.LEGENDARY,
-      power: 95,
-      speed: 85,
-      luck: 90,
-      imageURI: "https://via.placeholder.com/300x300/FFD700/000000?text=⚡🔨"
-    },
-    {
-      name: "Golden Mallet Supreme",
-      description: "A supreme golden mallet forged from celestial gold. Increases all stats significantly.",
-      category: AssetCategory.HAMMER,
-      rarity: AssetRarity.MYTHIC,
-      power: 100,
-      speed: 95,
-      luck: 100,
-      imageURI: "https://via.placeholder.com/300x300/FFD700/000000?text=👑🔨"
-    },
-    {
-      name: "Crystal Hammer",
-      description: "A beautiful crystal hammer that sparkles with magical energy.",
-      category: AssetCategory.HAMMER,
-      rarity: AssetRarity.EPIC,
-      power: 80,
-      speed: 75,
-      luck: 85,
-      imageURI: "https://via.placeholder.com/300x300/9932CC/FFFFFF?text=💎🔨"
-    },
-    
-    // Power-ups
-    {
-      name: "Lightning Bolt",
-      description: "Harness the power of lightning to move at incredible speeds!",
-      category: AssetCategory.POWERUP,
-      rarity: AssetRarity.RARE,
-      power: 60,
-      speed: 100,
-      luck: 70,
-      imageURI: "https://via.placeholder.com/300x300/1E90FF/FFFFFF?text=⚡💨"
-    },
-    {
-      name: "Lucky Clover",
-      description: "A four-leaf clover that brings incredible luck to the bearer.",
-      category: AssetCategory.POWERUP,
-      rarity: AssetRarity.UNCOMMON,
-      power: 40,
-      speed: 50,
-      luck: 95,
-      imageURI: "https://via.placeholder.com/300x300/32CD32/FFFFFF?text=🍀✨"
-    },
-    {
-      name: "Time Warp Orb",
-      description: "Manipulate time itself to gain an advantage in the game.",
-      category: AssetCategory.POWERUP,
-      rarity: AssetRarity.LEGENDARY,
-      power: 85,
-      speed: 90,
-      luck: 80,
-      imageURI: "https://via.placeholder.com/300x300/8A2BE2/FFFFFF?text=🔮⏰"
-    },
-    
-    // Mole Skins
-    {
-      name: "Cyber Mole",
-      description: "A futuristic mole skin with neon accents and digital effects.",
-      category: AssetCategory.MOLE_SKIN,
-      rarity: AssetRarity.EPIC,
-      power: 70,
-      speed: 80,
-      luck: 75,
-      imageURI: "https://via.placeholder.com/300x300/00FFFF/000000?text=🤖🐹"
-    },
-    {
-      name: "Rainbow Mole",
-      description: "A magical mole that shimmers with all colors of the rainbow.",
-      category: AssetCategory.MOLE_SKIN,
-      rarity: AssetRarity.LEGENDARY,
-      power: 75,
-      speed: 85,
-      luck: 90,
-      imageURI: "https://via.placeholder.com/300x300/FF69B4/FFFFFF?text=🌈🐹"
-    },
-    {
-      name: "Pirate Mole",
-      description: "Ahoy! This mole is ready to sail the seven seas.",
-      category: AssetCategory.MOLE_SKIN,
-      rarity: AssetRarity.RARE,
-      power: 65,
-      speed: 70,
-      luck: 80,
-      imageURI: "https://via.placeholder.com/300x300/8B4513/FFFFFF?text=🏴‍☠️🐹"
-    },
-    {
-      name: "Ninja Mole",
-      description: "A stealthy mole trained in the ancient arts of ninjutsu.",
-      category: AssetCategory.MOLE_SKIN,
-      rarity: AssetRarity.EPIC,
-      power: 85,
-      speed: 95,
-      luck: 70,
-      imageURI: "https://via.placeholder.com/300x300/2F4F4F/FFFFFF?text=🥷🐹"
-    },
-    
-    // Backgrounds
-    {
-      name: "Space Odyssey",
-      description: "Journey through the cosmos with this stunning space background.",
-      category: AssetCategory.BACKGROUND,
-      rarity: AssetRarity.LEGENDARY,
-      power: 60,
-      speed: 70,
-      luck: 85,
-      imageURI: "https://via.placeholder.com/300x300/191970/FFFFFF?text=🌌🚀"
-    },
-    {
-      name: "Underwater Paradise",
-      description: "Dive into an underwater world filled with marine life.",
-      category: AssetCategory.BACKGROUND,
-      rarity: AssetRarity.RARE,
-      power: 55,
-      speed: 65,
-      luck: 75,
-      imageURI: "https://via.placeholder.com/300x300/008B8B/FFFFFF?text=🌊🐠"
-    },
-    {
-      name: "Volcanic Eruption",
-      description: "Feel the heat with this intense volcanic background.",
-      category: AssetCategory.BACKGROUND,
-      rarity: AssetRarity.EPIC,
-      power: 90,
-      speed: 60,
-      luck: 70,
-      imageURI: "https://via.placeholder.com/300x300/DC143C/FFFFFF?text=🌋🔥"
-    },
-    
-    // Special Items
-    {
-      name: "Dragon's Eye",
-      description: "A mystical gem that contains the power of an ancient dragon.",
-      category: AssetCategory.SPECIAL,
-      rarity: AssetRarity.MYTHIC,
-      power: 100,
-      speed: 90,
-      luck: 95,
-      imageURI: "https://via.placeholder.com/300x300/FF4500/FFFFFF?text=🐉👁️"
-    },
-    {
-      name: "Phoenix Feather",
-      description: "A rare feather from the legendary phoenix, granting rebirth powers.",
-      category: AssetCategory.SPECIAL,
-      rarity: AssetRarity.LEGENDARY,
-      power: 85,
-      speed: 95,
-      luck: 90,
-      imageURI: "https://via.placeholder.com/300x300/FF6347/FFFFFF?text=🔥🪶"
-    },
-    
-    // Common items for variety
+    ...nftAssetTemplates,
+    // Add some additional common items for variety
     {
       name: "Basic Hammer",
       description: "A simple but reliable hammer for beginners.",
@@ -175,7 +18,7 @@ export const generateDummyAssets = (count: number = 20): GameAsset[] => {
       power: 30,
       speed: 25,
       luck: 20,
-      imageURI: "https://via.placeholder.com/300x300/808080/FFFFFF?text=🔨"
+      imageURI: getRandomNFTImage()
     },
     {
       name: "Speed Potion",
@@ -185,7 +28,7 @@ export const generateDummyAssets = (count: number = 20): GameAsset[] => {
       power: 20,
       speed: 40,
       luck: 25,
-      imageURI: "https://via.placeholder.com/300x300/90EE90/000000?text=🧪💨"
+      imageURI: getRandomNFTImage()
     },
     {
       name: "Forest Background",
@@ -195,7 +38,7 @@ export const generateDummyAssets = (count: number = 20): GameAsset[] => {
       power: 25,
       speed: 30,
       luck: 35,
-      imageURI: "https://via.placeholder.com/300x300/228B22/FFFFFF?text=🌲🌳"
+      imageURI: getRandomNFTImage()
     },
     {
       name: "Regular Mole",
@@ -205,7 +48,7 @@ export const generateDummyAssets = (count: number = 20): GameAsset[] => {
       power: 25,
       speed: 30,
       luck: 25,
-      imageURI: "https://via.placeholder.com/300x300/8B4513/FFFFFF?text=🐹"
+      imageURI: getRandomNFTImage()
     },
     {
       name: "Power Gloves",
@@ -215,7 +58,17 @@ export const generateDummyAssets = (count: number = 20): GameAsset[] => {
       power: 55,
       speed: 35,
       luck: 40,
-      imageURI: "https://via.placeholder.com/300x300/4169E1/FFFFFF?text=🧤💪"
+      imageURI: getRandomNFTImage()
+    },
+    {
+      name: "Phoenix Feather",
+      description: "A rare feather from the legendary phoenix, granting rebirth powers.",
+      category: AssetCategory.SPECIAL,
+      rarity: AssetRarity.LEGENDARY,
+      power: 85,
+      speed: 95,
+      luck: 90,
+      imageURI: getRandomNFTImage()
     }
   ];
   
@@ -303,13 +156,13 @@ export const generateDummyListings = (assets: GameAsset[]): MarketplaceListing[]
 export const generatePlayerDummyAssets = (count: number = 5): GameAsset[] => {
   const allAssets = generateDummyAssets(20);
   
-  // Give player some good assets for demo
+  // Give player some good assets for demo - mix of rarities
   const playerAssets = [
-    allAssets[0], // Thor's Mjolnir
-    allAssets[3], // Lightning Bolt
-    allAssets[6], // Cyber Mole
-    allAssets[14], // Basic Hammer
-    allAssets[15]  // Speed Potion
+    allAssets[0], // Thor's Mjolnir (Legendary)
+    allAssets[3], // Lightning Bolt Essence (Rare)
+    allAssets[6], // Cyber Mole X-1 (Epic)
+    allAssets[1], // Golden Mallet Supreme (Mythic)
+    allAssets[4]  // Lucky Clover of Fortune (Uncommon)
   ].slice(0, count);
   
   return playerAssets;

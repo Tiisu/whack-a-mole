@@ -9,6 +9,7 @@ import GameContainer from './components/GameContainer';
 import NFTMarketplace from './components/NFTMarketplace';
 import AccessControl from './components/AccessControl';
 import TrialGameOverlay from './components/TrialGameOverlay';
+import DemoNFTPreview from './components/DemoNFTPreview';
 import './App.css';
 
 // Main App Router Component
@@ -81,6 +82,7 @@ function App() {
             <NotificationProvider>
               <AppProvider>
                 <AppRouter />
+                <DemoNFTPreview />
               </AppProvider>
             </NotificationProvider>
           </GameProvider>
