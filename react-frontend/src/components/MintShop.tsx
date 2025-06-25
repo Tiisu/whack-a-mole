@@ -7,6 +7,7 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { LoadingSpinner } from './ui/LoadingSpinner';
 import { Badge } from './ui/Badge';
+import MetaMaskSimulation from './MetaMaskSimulation';
 import '../styles/MintShop.css';
 
 interface MintShopProps {
@@ -23,7 +24,8 @@ export const MintShop: React.FC<MintShopProps> = ({ isOpen, onClose }) => {
     mintAsset, 
     getAssetDefinition, 
     getAssetMintCount,
-    demoMode
+    demoMode,
+    metaMaskSimulation
   } = useEnhancedGameAssetNFT(account);
 
   const [assetDefinitions, setAssetDefinitions] = useState<Record<string, AssetDefinition & { mintCount: number }>>({});
@@ -261,6 +263,20 @@ export const MintShop: React.FC<MintShopProps> = ({ isOpen, onClose }) => {
           </>
         )}
       </div>
+
+      {/* MetaMask Simulation for Demo Mode */}
+      {demoMode && (
+        <MetaMaskSimulation
+          isVisible={metaMaskSimulation.isVisible}
+          transactionType={metaMaskSimulation.currentTransaction?.type || 'mint'}
+          assetName={metaMaskSimulation.currentTransaction?.assetName || 'NFT Asset'}
+          price={metaMaskSimulation.currentTransaction?.price || 0}
+          onConfirm={metaMaskSimulation.confirmTransaction}
+          onReject={metaMaskSimulation.rejectTransaction}
+          autoConfirm={true}
+          autoConfirmDelay={3000}
+        />
+      )}
     </div>
   );
 };

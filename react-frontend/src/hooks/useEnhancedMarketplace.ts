@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { MarketplaceListing, GameAsset, UseMarketplaceReturn } from '../types';
 import { useMarketplace } from './useMarketplace';
+import { useMetaMaskSimulation } from './useMetaMaskSimulation';
 import { 
   generateDummyAssets, 
   generateDummyListings, 
@@ -12,10 +13,13 @@ interface UseEnhancedMarketplaceReturn extends UseMarketplaceReturn {
   setDemoMode: (enabled: boolean) => void;
   playerDemoAssets: GameAsset[];
   refreshDemoData: () => void;
+  // MetaMask simulation
+  metaMaskSimulation: ReturnType<typeof useMetaMaskSimulation>;
 }
 
 export const useEnhancedMarketplace = (account: string | null): UseEnhancedMarketplaceReturn => {
   const originalMarketplace = useMarketplace(account);
+  const metaMaskSimulation = useMetaMaskSimulation();
   const [demoMode, setDemoMode] = useState(false);
   const [demoListings, setDemoListings] = useState<MarketplaceListing[]>([]);
   const [playerDemoAssets, setPlayerDemoAssets] = useState<GameAsset[]>([]);
@@ -50,60 +54,89 @@ export const useEnhancedMarketplace = (account: string | null): UseEnhancedMarke
   // Enhanced buy function with demo support
   const buyNFT = useCallback(async (listingId: number, price: number): Promise<void> => {
     if (demoMode) {
-      // Simulate buying in demo mode
-      console.log('Demo: Buying NFT', { listingId, price });
+      // Find the listing to get asset name
+      const listing = demoListings.find(l => l.listingId === listingId);
+      const assetName = listing?.asset?.name || 'NFT Asset';
       
-      // Remove the listing from demo data
-      setDemoListings(prev => prev.filter(listing => listing.listingId !== listingId));
-      
-      // Add the asset to player's demo assets
-      const boughtListing = demoListings.find(listing => listing.listingId === listingId);
-      if (boughtListing && boughtListing.asset) {
-        setPlayerDemoAssets(prev => [...prev, boughtListing.asset!]);
-      }
-      
-      // Simulate transaction delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return Promise.resolve();
+      // Show MetaMask simulation
+      return new Promise<void>((resolve, reject) => {
+        metaMaskSimulation.simulateBuy(
+          assetName,
+          price,
+          () => {
+            // On success: complete the purchase
+            console.log('Demo: Buying NFT', { listingId, price });
+            
+            // Remove the listing from demo data
+            setDemoListings(prev => prev.filter(listing => listing.listingId !== listingId));
+            
+            // Add the asset to player's demo assets
+            const boughtListing = demoListings.find(listing => listing.listingId === listingId);
+            if (boughtListing && boughtListing.asset) {
+              setPlayerDemoAssets(prev => [...prev, boughtListing.asset!]);
+            }
+            
+            resolve();
+          },
+          (error) => {
+            // On error: reject the promise
+            reject(new Error(error));
+          }
+        );
+      });
     } else {
       return originalMarketplace.buyNFT(listingId, price);
     }
-  }, [demoMode, originalMarketplace.buyNFT, demoListings]);
+  }, [demoMode, originalMarketplace.buyNFT, demoListings, metaMaskSimulation]);
 
   // Enhanced listing function with demo support
   const listNFTForSale = useCallback(async (tokenId: number, price: number): Promise<void> => {
     if (demoMode) {
-      console.log('Demo: Listing NFT for sale', { tokenId, price });
-      
       // Find the asset in player's demo assets
       const asset = playerDemoAssets.find(a => a.tokenId === tokenId);
-      if (asset) {
-        // Create new demo listing
-        const newListing: MarketplaceListing = {
-          listingId: demoListings.length + 1,
-          seller: account || '0x0000000000000000000000000000000000000000',
-          nftContract: '0x0000000000000000000000000000000000000000',
-          tokenId: tokenId,
-          listingType: 'FIXED_PRICE',
-          price: price,
-          startTime: Date.now(),
-          endTime: 0,
-          status: 'ACTIVE',
-          isActive: true,
-          asset: asset
-        };
-        
-        setDemoListings(prev => [...prev, newListing]);
-        // Remove from player assets
-        setPlayerDemoAssets(prev => prev.filter(a => a.tokenId !== tokenId));
-      }
+      const assetName = asset?.name || 'NFT Asset';
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return Promise.resolve();
+      // Show MetaMask simulation
+      return new Promise<void>((resolve, reject) => {
+        metaMaskSimulation.simulateList(
+          assetName,
+          price,
+          () => {
+            // On success: create the listing
+            console.log('Demo: Listing NFT for sale', { tokenId, price });
+            
+            if (asset) {
+              // Create new demo listing
+              const newListing: MarketplaceListing = {
+                listingId: demoListings.length + 1,
+                seller: account || '0x0000000000000000000000000000000000000000',
+                nftContract: '0x0000000000000000000000000000000000000000',
+                tokenId: tokenId,
+                listingType: 'FIXED_PRICE',
+                price: price,
+                startTime: Date.now(),
+                endTime: 0,
+                status: 'ACTIVE',
+                isActive: true,
+                asset: asset
+              };
+              
+              setDemoListings(prev => [...prev, newListing]);
+              // Remove from player assets
+              setPlayerDemoAssets(prev => prev.filter(a => a.tokenId !== tokenId));
+            }
+            
+            resolve();
+          },
+          (error) => {
+            reject(new Error(error));
+          }
+        );
+      });
     } else {
       return originalMarketplace.listNFTForSale(tokenId, price);
     }
-  }, [demoMode, originalMarketplace.listNFTForSale, playerDemoAssets, demoListings, account]);
+  }, [demoMode, originalMarketplace.listNFTForSale, playerDemoAssets, demoListings, account, metaMaskSimulation]);
 
   // Enhanced auction listing with demo support
   const listNFTForAuction = useCallback(async (
@@ -205,6 +238,7 @@ export const useEnhancedMarketplace = (account: string | null): UseEnhancedMarke
     demoMode,
     setDemoMode,
     playerDemoAssets,
-    refreshDemoData
+    refreshDemoData,
+    metaMaskSimulation
   };
 };

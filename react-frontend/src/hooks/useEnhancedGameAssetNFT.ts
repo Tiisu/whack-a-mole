@@ -1,16 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GameAsset, AssetDefinition, UseGameAssetNFTReturn, AssetCategory, AssetRarity } from '../types';
 import { useGameAssetNFT } from './useGameAssetNFT';
+import { useMetaMaskSimulation } from './useMetaMaskSimulation';
 import { generatePlayerDummyAssets, generateDummyAssets } from '../services/dummyDataService';
 
 interface UseEnhancedGameAssetNFTReturn extends UseGameAssetNFTReturn {
   demoMode: boolean;
   setDemoMode: (enabled: boolean) => void;
   refreshDemoAssets: () => void;
+  metaMaskSimulation: ReturnType<typeof useMetaMaskSimulation>;
 }
 
 export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGameAssetNFTReturn => {
   const originalGameAssetNFT = useGameAssetNFT(account);
+  const metaMaskSimulation = useMetaMaskSimulation();
   const [demoMode, setDemoMode] = useState(false);
   const [demoPlayerAssets, setDemoPlayerAssets] = useState<GameAsset[]>([]);
 
@@ -37,8 +40,6 @@ export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGame
   // Enhanced mintAsset with demo support
   const mintAsset = useCallback(async (assetType: string, recipient?: string): Promise<number | null> => {
     if (demoMode) {
-      console.log('Demo: Minting asset', { assetType, recipient });
-      
       // Create a new demo asset based on type
       const allAssets = generateDummyAssets(20);
       const templateAsset = allAssets.find(asset => 
@@ -46,24 +47,41 @@ export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGame
         asset.category.toString().toLowerCase().includes(assetType.toLowerCase())
       ) || allAssets[0];
       
-      const newTokenId = Math.max(...demoPlayerAssets.map(a => a.tokenId), 0) + 1;
-      const newAsset: GameAsset = {
-        ...templateAsset,
-        tokenId: newTokenId,
-        name: `${templateAsset.name} #${newTokenId}`,
-        createdAt: Date.now(),
-        creator: account || '0x0000000000000000000000000000000000000000'
-      };
+      // Get asset definition for pricing
+      const assetDefinition = await getAssetDefinition(assetType);
+      const mintPrice = assetDefinition?.mintPrice || 0.01;
+      const assetName = templateAsset.name;
       
-      setDemoPlayerAssets(prev => [...prev, newAsset]);
-      
-      // Simulate minting delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return newTokenId;
+      // Show MetaMask simulation
+      return new Promise<number | null>((resolve, reject) => {
+        metaMaskSimulation.simulateMint(
+          assetName,
+          mintPrice,
+          () => {
+            // On success: create the asset
+            console.log('Demo: Minting asset', { assetType, recipient });
+            
+            const newTokenId = Math.max(...demoPlayerAssets.map(a => a.tokenId), 0) + 1;
+            const newAsset: GameAsset = {
+              ...templateAsset,
+              tokenId: newTokenId,
+              name: `${templateAsset.name} #${newTokenId}`,
+              createdAt: Date.now(),
+              creator: account || '0x0000000000000000000000000000000000000000'
+            };
+            
+            setDemoPlayerAssets(prev => [...prev, newAsset]);
+            resolve(newTokenId);
+          },
+          (error) => {
+            reject(new Error(error));
+          }
+        );
+      });
     } else {
       return originalGameAssetNFT.mintAsset(assetType, recipient);
     }
-  }, [demoMode, originalGameAssetNFT.mintAsset, demoPlayerAssets, account]);
+  }, [demoMode, originalGameAssetNFT.mintAsset, demoPlayerAssets, account, metaMaskSimulation, getAssetDefinition]);
 
   // Enhanced getAssetDetails with demo support
   const getAssetDetails = useCallback(async (tokenId: number): Promise<GameAsset | null> => {
@@ -205,6 +223,7 @@ export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGame
     getPlayerAssetsByCategory,
     demoMode,
     setDemoMode,
-    refreshDemoAssets
+    refreshDemoAssets,
+    metaMaskSimulation
   };
 };

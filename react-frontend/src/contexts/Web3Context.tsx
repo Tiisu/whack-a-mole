@@ -1,6 +1,6 @@
 // Enhanced Web3 Context for managing blockchain state and interactions
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { ethers } from 'ethers';
 import { Web3ContextType, PlayerData, LeaderboardEntry } from '../types';
 import { useWallet } from '../hooks/useWallet';
@@ -133,6 +133,7 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   }, [gameContract, addSuccessNotification, addErrorNotification]);
 
   // Enhanced refresh with improved error handling and contract validation
+  const lastRefreshTimeRef = useRef<number>(0);
   const refreshData = useCallback(async (retryCount: number = 0): Promise<void> => {
     if (!web3State.account) {
       console.log('No account connected, skipping data refresh');
@@ -143,6 +144,18 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       console.log('Contracts not ready, skipping data refresh');
       setError('Contracts not initialized. Please check your network connection.');
       return;
+    }
+
+    // Throttle refresh calls to prevent spam (minimum 2 seconds between calls)
+    const now = Date.now();
+    const timeSinceLastRefresh = now - lastRefreshTimeRef.current;
+    if (retryCount === 0 && timeSinceLastRefresh < 2000) {
+      console.log(`Throttling refresh call - only ${timeSinceLastRefresh}ms since last refresh`);
+      return;
+    }
+    
+    if (retryCount === 0) {
+      lastRefreshTimeRef.current = now;
     }
 
     const maxRetries = 3;
@@ -304,20 +317,28 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
     setCurrentGameId(null);
   }, []);
 
-  // Load data when wallet connects
+  // Load data when wallet connects (with throttling to prevent loops)
+  const lastWalletRefreshRef = useRef<number>(0);
   useEffect(() => {
     if (web3State.isConnected && web3State.account && gameContract.isContractReady) {
-      console.log('Wallet connected, loading data...');
+      const now = Date.now();
+      const timeSinceLastRefresh = now - lastWalletRefreshRef.current;
       
-      // Run debug check first
-      debugWeb3Connection().then(() => {
-        refreshData();
-      }).catch(err => {
-        console.error('Debug check failed:', err);
-        refreshData(); // Still try to refresh data
-      });
+      // Only refresh if it's been at least 3 seconds since last wallet refresh
+      if (timeSinceLastRefresh > 3000) {
+        console.log('Wallet connected, loading data...');
+        lastWalletRefreshRef.current = now;
+        
+        // Run debug check first
+        debugWeb3Connection().then(() => {
+          refreshData();
+        }).catch(err => {
+          console.error('Debug check failed:', err);
+          refreshData(); // Still try to refresh data
+        });
+      }
     }
-  }, [web3State.isConnected, web3State.account, gameContract.isContractReady, refreshData]);
+  }, [web3State.isConnected, web3State.account, gameContract.isContractReady]);
 
   // Periodic refresh mechanism for real-time updates (disabled for now to prevent spam)
   // useEffect(() => {

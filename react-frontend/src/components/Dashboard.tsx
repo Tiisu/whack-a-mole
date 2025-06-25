@@ -15,26 +15,35 @@ const Dashboard: React.FC = () => {
   const lastRefreshRef = useRef<number>(0);
 
   const handleRefresh = async () => {
+    const now = Date.now();
+    const timeSinceLastRefresh = now - lastRefreshRef.current;
+    
+    // Prevent manual refresh spam (minimum 1 second for manual refresh)
+    if (timeSinceLastRefresh < 1000) {
+      console.log('Manual refresh throttled - please wait');
+      return;
+    }
+    
+    lastRefreshRef.current = now;
     await refreshData();
   };
 
-  // Auto-refresh dashboard when Web3 state changes (but not too frequently)
+  // Auto-refresh dashboard when connection state changes (but not on data changes to prevent loops)
   useEffect(() => {
     const now = Date.now();
     const timeSinceLastRefresh = now - lastRefreshRef.current;
 
-    // Only auto-refresh if it's been at least 2 seconds since last refresh
-    // and we have connected account with player data
+    // Only auto-refresh when connection state changes and enough time has passed
+    // Do NOT include data values in dependencies to prevent refresh loops
     if (web3State.isConnected &&
         web3State.account &&
-        web3State.playerData?.isRegistered &&
-        timeSinceLastRefresh > 2000) {
+        timeSinceLastRefresh > 5000) { // Increased to 5 seconds to prevent spam
 
-      console.log('🔄 Dashboard auto-refreshing due to Web3 state change...');
+      console.log('🔄 Dashboard auto-refreshing due to connection state change...');
       lastRefreshRef.current = now;
       refreshData();
     }
-  }, [web3State.playerData?.totalGamesPlayed, web3State.playerData?.totalScore, web3State.playerData?.highestScore, web3State.achievements.length, web3State.leaderboard.length, refreshData, web3State.isConnected, web3State.account]);
+  }, [web3State.isConnected, web3State.account]); // Removed data dependencies to prevent loops
 
   // Use Web3 data if available, otherwise fall back to local stats
   const displayStats = web3State.playerData ? {

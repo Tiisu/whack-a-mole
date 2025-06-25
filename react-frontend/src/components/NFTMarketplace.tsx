@@ -11,6 +11,7 @@ import { Badge } from './ui/Badge';
 import MintShop from './MintShop';
 import DemoModeToggle from './DemoModeToggle';
 import EnhancedGameFeatures from './EnhancedGameFeatures';
+import MetaMaskSimulation from './MetaMaskSimulation';
 import Navbar from './Navbar';
 import '../styles/NFTMarketplace.css';
 
@@ -35,7 +36,8 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
     demoMode: marketplaceDemoMode,
     setDemoMode: setMarketplaceDemoMode,
     playerDemoAssets,
-    refreshDemoData
+    refreshDemoData,
+    metaMaskSimulation
   } = useEnhancedMarketplace(account);
   
   const {
@@ -526,6 +528,20 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
         onClose={() => setShowFeaturesModal(false)}
         demoMode={demoMode}
       />
+
+      {/* MetaMask Simulation for Demo Mode */}
+      {demoMode && (
+        <MetaMaskSimulation
+          isVisible={metaMaskSimulation.isVisible}
+          transactionType={metaMaskSimulation.currentTransaction?.type || 'buy'}
+          assetName={metaMaskSimulation.currentTransaction?.assetName || 'NFT Asset'}
+          price={metaMaskSimulation.currentTransaction?.price || 0}
+          onConfirm={metaMaskSimulation.confirmTransaction}
+          onReject={metaMaskSimulation.rejectTransaction}
+          autoConfirm={true}
+          autoConfirmDelay={4000}
+        />
+      )}
     </div>
     </>
   );
