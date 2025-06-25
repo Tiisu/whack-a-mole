@@ -10,6 +10,7 @@ import Dashboard from './Dashboard';
 import GameControls from './GameControls';
 import NotificationContainer from './NotificationContainer';
 import GameOverModal from './GameOverModal';
+import Navbar from './Navbar';
 import { GameLayout, GameSection, GamePanel, GameGrid, GameHeader, GameStatsBar } from './GameLayout';
 import { Card, CardContent, Badge, Progress } from './ui';
 import { useWeb3 } from '../contexts/Web3Context';
@@ -94,11 +95,15 @@ const GameContainer: React.FC = () => {
   });
 
   return (
-    <GameLayout>
-      {/* Web3 Connection UI */}
-      <GamePanel variant="glass" padding="md">
-        <WalletConnection />
-      </GamePanel>
+    <>
+      {/* Navigation Bar */}
+      <Navbar currentPage="game" />
+      
+      <GameLayout>
+        {/* Web3 Connection UI */}
+        <GamePanel variant="glass" padding="md">
+          <WalletConnection />
+        </GamePanel>
 
       {/* Player Registration Modal */}
       {needsRegistration && (
@@ -213,6 +218,7 @@ const GameContainer: React.FC = () => {
         onClose={handleCloseModal}
       />
     </GameLayout>
+    </>
   );
 };
 

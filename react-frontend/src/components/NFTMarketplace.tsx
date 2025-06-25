@@ -11,6 +11,7 @@ import { Badge } from './ui/Badge';
 import MintShop from './MintShop';
 import DemoModeToggle from './DemoModeToggle';
 import EnhancedGameFeatures from './EnhancedGameFeatures';
+import Navbar from './Navbar';
 import '../styles/NFTMarketplace.css';
 
 interface NFTMarketplaceProps {
@@ -206,24 +207,29 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
   // This ensures we're truly connected before showing the marketplace
   if (!isConnected || !account) {
     return (
-      <div className={`nft-marketplace ${className}`}>
-        <div className="marketplace-not-connected">
-          <h2>NFT Marketplace</h2>
-          <p>Please connect your wallet to access the marketplace</p>
-          <Button onClick={() => connect()}>Connect Wallet</Button>
-          <Button onClick={() => window.location.reload()} style={{ marginLeft: '10px' }}>Refresh Page</Button>
+      <>
+        <Navbar currentPage="marketplace" />
+        <div className={`nft-marketplace ${className}`}>
+          <div className="marketplace-not-connected">
+            <h2>NFT Marketplace</h2>
+            <p>Please connect your wallet to access the marketplace</p>
+            <Button onClick={() => connect()}>Connect Wallet</Button>
+            <Button onClick={() => window.location.reload()} style={{ marginLeft: '10px' }}>Refresh Page</Button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className={`nft-marketplace ${className}`}>
-      {/* Demo Mode Toggle */}
-      <DemoModeToggle 
-        onToggle={handleDemoModeToggle}
-        isEnabled={demoMode}
-      />
+    <>
+      <Navbar currentPage="marketplace" />
+      <div className={`nft-marketplace ${className}`}>
+        {/* Demo Mode Toggle */}
+        <DemoModeToggle 
+          onToggle={handleDemoModeToggle}
+          isEnabled={demoMode}
+        />
       
       <div className="marketplace-header">
         <h1>NFT Marketplace</h1>
@@ -521,6 +527,7 @@ export const NFTMarketplace: React.FC<NFTMarketplaceProps> = ({ className = '' }
         demoMode={demoMode}
       />
     </div>
+    </>
   );
 };
 
