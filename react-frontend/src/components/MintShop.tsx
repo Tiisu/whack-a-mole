@@ -245,7 +245,7 @@ export const MintShop: React.FC<MintShopProps> = ({ isOpen, onClose }) => {
                         >
                           {isMinting ? (
                             <>
-                              <LoadingSpinner size="small" />
+                              <LoadingSpinner size="sm" />
                               Minting...
                             </>
                           ) : isSupplyExhausted(definition) ? (

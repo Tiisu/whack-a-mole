@@ -5,13 +5,13 @@ import { useWeb3 } from '../contexts/Web3Context';
 import { useGameContext } from '../contexts/GameContext';
 import { motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, RefreshCw, Database, Wifi, WifiOff, AlertTriangle, CheckCircle, XCircle, Play } from 'lucide-react';
-import { contractDiagnostics, DiagnosticResult } from '../utils/contractDiagnostics';
+import { contractDiagnostics, DiagnosticResult, ContractDiagnostics } from '../utils/contractDiagnostics';
 
 const Web3DataDebug: React.FC = () => {
   const { web3State, refreshData, isLoading } = useWeb3();
   const { gameStats } = useGameContext();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [diagnostics, setDiagnostics] = useState<DiagnosticResult[]>([]);
+  const [diagnostics, setDiagnostics] = useState<ContractDiagnostics | null>(null);
   const [isDiagnosticRunning, setIsDiagnosticRunning] = useState(false);
 
   const handleRefresh = async () => {
@@ -22,7 +22,7 @@ const Web3DataDebug: React.FC = () => {
   const runDiagnostics = async () => {
     setIsDiagnosticRunning(true);
     try {
-      const results = await contractDiagnostics.runFullDiagnostics(web3State.account || undefined);
+      const results = await contractDiagnostics.runFullDiagnostics();
       setDiagnostics(results);
       console.log('🔍 Diagnostics completed:', results);
     } catch (error) {
@@ -32,12 +32,17 @@ const Web3DataDebug: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (success: boolean) => {
-    return success ? (
-      <CheckCircle className="w-4 h-4 text-green-500" />
-    ) : (
-      <XCircle className="w-4 h-4 text-red-500" />
-    );
+  const getStatusIcon = (status: 'success' | 'warning' | 'error') => {
+    switch (status) {
+      case 'success':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'warning':
+        return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      case 'error':
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      default:
+        return <XCircle className="w-4 h-4 text-red-500" />;
+    }
   };
 
   return (
@@ -185,21 +190,16 @@ const Web3DataDebug: React.FC = () => {
               </button>
             </div>
             
-            {diagnostics.length > 0 && (
+            {diagnostics && (
               <div className="diagnostics-results">
-                {diagnostics.map((result, index) => (
-                  <div key={index} className="diagnostic-item">
+                {Object.entries(diagnostics).map(([key, result]) => (
+                  <div key={key} className="diagnostic-item">
                     <div className="diagnostic-header">
-                      {getStatusIcon(result.success)}
+                      {getStatusIcon(result.status)}
                       <span className="diagnostic-message">{result.message}</span>
                     </div>
-                    {result.error && (
-                      <div className="diagnostic-error">{result.error}</div>
-                    )}
-                    {result.data && (
-                      <div className="diagnostic-data">
-                        <pre>{JSON.stringify(result.data, null, 2)}</pre>
-                      </div>
+                    {result.details && (
+                      <div className="diagnostic-error">{result.details}</div>
                     )}
                   </div>
                 ))}

@@ -53,7 +53,16 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     )
 
     if (animated) {
-      const { onDrag, onDragStart, onDragEnd, ...motionProps } = props;
+      const { 
+        onDrag, 
+        onDragStart, 
+        onDragEnd, 
+        onAnimationStart,
+        onAnimationEnd,
+        onAnimationIteration,
+        onTransitionEnd,
+        ...motionProps 
+      } = props;
       return (
         <motion.div
           ref={ref}

@@ -37,6 +37,58 @@ export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGame
     }
   }, [demoMode, originalGameAssetNFT.getPlayerAssets]);
 
+  // Enhanced getAssetDefinition with demo support
+  const getAssetDefinition = useCallback(async (assetType: string): Promise<AssetDefinition | null> => {
+    if (demoMode) {
+      // Return demo asset definitions
+      const demoDefinitions: Record<string, AssetDefinition> = {
+        'GOLDEN_HAMMER': {
+          name: 'Golden Hammer',
+          description: 'A legendary hammer forged from pure gold',
+          category: AssetCategory.HAMMER,
+          rarity: AssetRarity.LEGENDARY,
+          power: 95,
+          speed: 85,
+          luck: 90,
+          imageURI: 'https://via.placeholder.com/300x300/FFD700/000000?text=🔨👑',
+          mintPrice: 5.0,
+          maxSupply: 100,
+          isActive: true
+        },
+        'SPEED_BOOST': {
+          name: 'Speed Boost',
+          description: 'Increases your speed dramatically',
+          category: AssetCategory.POWERUP,
+          rarity: AssetRarity.RARE,
+          power: 60,
+          speed: 100,
+          luck: 75,
+          imageURI: 'https://via.placeholder.com/300x300/2196F3/FFFFFF?text=⚡🏃',
+          mintPrice: 2.5,
+          maxSupply: 500,
+          isActive: true
+        },
+        'DIAMOND_SKIN': {
+          name: 'Diamond Skin',
+          description: 'Protective skin that shimmers like diamonds',
+          category: AssetCategory.SKIN,
+          rarity: AssetRarity.EPIC,
+          power: 80,
+          speed: 70,
+          luck: 85,
+          imageURI: 'https://via.placeholder.com/300x300/673AB7/FFFFFF?text=💎✨',
+          mintPrice: 3.0,
+          maxSupply: 200,
+          isActive: true
+        }
+      };
+      
+      return Promise.resolve(demoDefinitions[assetType] || null);
+    } else {
+      return originalGameAssetNFT.getAssetDefinition(assetType);
+    }
+  }, [demoMode, originalGameAssetNFT.getAssetDefinition]);
+
   // Enhanced mintAsset with demo support
   const mintAsset = useCallback(async (assetType: string, recipient?: string): Promise<number | null> => {
     if (demoMode) {
@@ -93,57 +145,6 @@ export const useEnhancedGameAssetNFT = (account: string | null): UseEnhancedGame
     }
   }, [demoMode, originalGameAssetNFT.getAssetDetails, demoPlayerAssets]);
 
-  // Enhanced getAssetDefinition with demo support
-  const getAssetDefinition = useCallback(async (assetType: string): Promise<AssetDefinition | null> => {
-    if (demoMode) {
-      // Return demo asset definitions
-      const demoDefinitions: Record<string, AssetDefinition> = {
-        'GOLDEN_HAMMER': {
-          name: 'Golden Hammer',
-          description: 'A legendary hammer forged from pure gold',
-          category: AssetCategory.HAMMER,
-          rarity: AssetRarity.LEGENDARY,
-          power: 95,
-          speed: 85,
-          luck: 90,
-          imageURI: 'https://via.placeholder.com/300x300/FFD700/000000?text=🔨👑',
-          mintPrice: 5.0,
-          maxSupply: 100,
-          isActive: true
-        },
-        'SPEED_BOOST': {
-          name: 'Speed Boost',
-          description: 'Increases your speed dramatically',
-          category: AssetCategory.POWERUP,
-          rarity: AssetRarity.RARE,
-          power: 60,
-          speed: 100,
-          luck: 70,
-          imageURI: 'https://via.placeholder.com/300x300/1E90FF/FFFFFF?text=⚡💨',
-          mintPrice: 2.0,
-          maxSupply: 500,
-          isActive: true
-        },
-        'CYBER_MOLE': {
-          name: 'Cyber Mole',
-          description: 'A futuristic mole skin with digital effects',
-          category: AssetCategory.MOLE_SKIN,
-          rarity: AssetRarity.EPIC,
-          power: 70,
-          speed: 80,
-          luck: 75,
-          imageURI: 'https://via.placeholder.com/300x300/00FFFF/000000?text=🤖🐹',
-          mintPrice: 3.5,
-          maxSupply: 200,
-          isActive: true
-        }
-      };
-      
-      return Promise.resolve(demoDefinitions[assetType] || null);
-    } else {
-      return originalGameAssetNFT.getAssetDefinition(assetType);
-    }
-  }, [demoMode, originalGameAssetNFT.getAssetDefinition]);
 
   // Enhanced getAssetMintCount with demo support
   const getAssetMintCount = useCallback(async (assetType: string): Promise<number> => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { generateDummyAssets, generateDummyListings } from '../services/dummyDataService';
 import { nftAssetTemplates } from '../data/nftAssets';
+import { AssetRarity } from '../types';
 
 const DemoNFTPreview: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
@@ -203,14 +204,14 @@ const DemoNFTPreview: React.FC = () => {
 };
 
 // Helper function for rarity colors
-const getRarityColor = (rarity: string): string => {
-  switch (rarity.toUpperCase()) {
-    case 'MYTHIC': return '#9c27b0';
-    case 'LEGENDARY': return '#ff9800';
-    case 'EPIC': return '#673ab7';
-    case 'RARE': return '#2196f3';
-    case 'UNCOMMON': return '#4caf50';
-    case 'COMMON': return '#757575';
+const getRarityColor = (rarity: AssetRarity): string => {
+  switch (rarity) {
+    case AssetRarity.MYTHIC: return '#9c27b0';
+    case AssetRarity.LEGENDARY: return '#ff9800';
+    case AssetRarity.EPIC: return '#673ab7';
+    case AssetRarity.RARE: return '#2196f3';
+    case AssetRarity.UNCOMMON: return '#4caf50';
+    case AssetRarity.COMMON: return '#757575';
     default: return '#757575';
   }
 };

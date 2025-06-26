@@ -332,6 +332,19 @@ export enum AssetRarity {
   MYTHIC = 5
 }
 
+export enum ListingType {
+  FIXED_PRICE = 0,
+  AUCTION = 1,
+  TRADE_OFFER = 2
+}
+
+export enum ListingStatus {
+  ACTIVE = 0,
+  SOLD = 1,
+  CANCELLED = 2,
+  EXPIRED = 3
+}
+
 export interface GameAsset {
   tokenId: number;
   name: string;
@@ -366,11 +379,11 @@ export interface MarketplaceListing {
   seller: string;
   nftContract: string;
   tokenId: number;
-  listingType: 'FIXED_PRICE' | 'AUCTION' | 'TRADE_OFFER';
+  listingType: ListingType;
   price: number;
   startTime: number;
   endTime: number;
-  status: 'ACTIVE' | 'SOLD' | 'CANCELLED' | 'EXPIRED';
+  status: ListingStatus;
   isActive: boolean;
   currentBid?: number;
   currentBidder?: string | null;

@@ -2,7 +2,7 @@
 
 .landing-page {
   min-height: 100vh;
-  background: var(--bg-game);
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   color: var(--ui-text-primary);
   font-family: var(--font-primary);
   overflow-x: hidden;
@@ -34,11 +34,18 @@
   top: 0;
   left: 0;
   right: 0;
-  background: rgba(26, 26, 46, 0.95);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 15, 35, 0.8);
+  backdrop-filter: blur(20px);
   z-index: 1000;
   padding: 1rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.landing-nav.scrolled {
+  background: rgba(15, 15, 35, 0.95);
+  padding: 0.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .nav-container {
